@@ -1,0 +1,179 @@
+This is a concept for the model for a game of checkers.
+	- The pieces are objects, which are instantiated and stored in one of two
+		ArrayLists according to their color.
+	- Position on the board is given by the row and column of the square.
+	- This constructor takes the types (human or computer) of the two players,
+		populates the ArrayLists, and randomly determines which color each
+		player will receive.
+	- Methods are provided to do the following functions:
+		- Check if a board square contains a checker of a given color
+		- Remove a checker from its ArrayList if it is captured
+		- Make a checker king if it reaches the end of the board
+		- Check if a given checker has been kinged or not
+		- Get the number of checkers each player has remaining
+		- End the turn, which increments the turn counter
+		- Set the name of each player
+		- Get which player's turn it is currently
+		- Get the current turn number
+		- Get the type (human or computer) of each player
+		- Get the name of each player
+
+
+
+
+
+
+
+
+
+public class CheckerboardModel {
+
+	public enum PlayerType {HUMAN, COMPUTER}
+	public enum Player {BLACK, RED}
+	
+	private Player whoseTurn = Player.BLACK;
+	private int turnNumber = 1;
+
+	private ArrayList<Checker> redCheckers = new ArrayList<Checker>;
+	private ArrayList<Checker> blackCheckers = new ArrayList<Checker>;
+	
+	private PlayerType redPlayerType;
+	private PlayerType blackPlayerType;
+	private String redPlayerName;
+	private String blackPlayerName;
+
+	public CheckerboardModel(PlayerType playerOneType, PlayerType playerTwoType) {
+		
+		// Set up initial board conditions
+		for(int row = 0; row < 3; row++) {
+			for(int col = 0; col < 4; col++) {
+				if(row == 0 || row == 2) {
+					redCheckers.add(new Checker(Player.RED, row, (2*col + 1)));
+					blackCheckers.add(new Checker(Player.BLACK, (row+5), (2*col)));
+				} else {
+					redCheckers.add(new Checker(Player.RED, row, (2*col)));
+					blackCheckers.add(new Checker(Player.BLACK, (row+5), (2*col + 1)));
+				}
+			}
+		}
+		
+		// Determine who goes first
+		Random random = new Random();
+		if(random.nextInt(2) == 0) {
+			this.redPlayerType = playerOneType;
+			this.blackPlayerType = playerTwoType;
+		} else {
+			this.redPlayerType = playerTwoType;
+			this.blackPlayerType = playerOneType;
+		}
+		
+	}
+	
+	// Check if a checker of the given player is on the given square
+	public Boolean containsChecker(Player player, int row, int col) {
+		if(this.getIndex(player, row, col) == -1) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	// Remove a checker if it gets captured
+	public void captureChecker(int row, int col) {
+		int blackIndex = this.getIndex(Player.BLACK, row, col);
+		if(blackIndex != -1) {
+			blackCheckers.remove(blackIndex);
+		} else {
+			redCheckers.remove(getIndex(Player.RED, row, col));
+		}
+	}
+	
+	// Make a checker king if it reaches the end of the board
+	public void makeKing(int row, int col) {
+		int blackIndex = this.getIndex(Player.BLACK, row, col);
+		if(blackIndex != -1) {
+			blackCheckers.get(blackIndex).setIsKing(true);
+		} else {
+			redCheckers.get(getIndex(Player.RED, row, col)).setIsKing(true);
+		}
+	}
+	
+	// Check if a checker is king
+	public Boolean isKing(int row, int col) {
+		int blackIndex = this.getIndex(Player.BLACK, row, col);
+		if(blackIndex != -1) {
+			return blackCheckers.get(blackIndex).getIsKing();
+		} else {
+			return redCheckers.get(getIndex(Player.RED, row, col)).getIsKing();
+		}
+	}
+	
+	public int getNumberPieces(Player player) {
+		if(player == Player.BLACK) {
+			return blackCheckers.size();
+		} else {
+			return redCheckers.size();
+		}
+	}
+	
+	public void endTurn() {
+		if(this.whoseTurn == Player.BLACK) {
+			this.whoseTurn = Player.RED;
+		} else {
+			this.whoseTurn = Player.BLACK;
+		}
+		this.turnNumber++;
+	}
+	
+	public void setPlayerName(Player player, String name) {
+		if(player == player.BLACK) {
+			this.blackPlayerName = name;
+		} else {
+			this.redPlayerName = name;
+		}
+	}
+	
+	public int getWhoseTurn() {
+		return this.whoseTurn;
+	}
+	
+	public int getTurnNumber() {
+		return this.turnNumber;
+	}
+	
+	public PlayerType getPlayerType(Player player) {
+		if(player == Player.BLACK) {
+			return this.blackPlayerType;
+		} else {
+			return this.redPlayerType;
+		}
+	}
+	
+	public String getPlayerName(Player player) {
+		if(player == Player.BLACK) {
+			return this.blackPlayerName;
+		} else {
+			return this.redPlayerName;
+		}
+	}
+	
+	// Helper function to return the ArrayList index of the desired checker
+	private int getIndex(Player player, int row, int col) {
+		if(player == Player.BLACK) {
+			for(int i = 0; i < blackCheckers.size(); i++) {
+				if(blackCheckers.get(i).getRow() == row && blackCheckers.get(i).getCol() == col) {
+					return i;
+				}
+			}
+			return -1;
+		} else {
+			for(int i = 0; i < redCheckers.size(); i++) {
+				if(redCheckers.get(i).getRow() == row && redCheckers.get(i).getCol() == col) {
+					return i;
+				}
+			}
+			return -1;
+		}
+	}
+	
+}
